@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Clock, CheckCircle, XCircle, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-// import { submitFeedback } from "@/lib/actions"
+import { submitFeedback } from "@/lib/data"
 
 const statusIcons = {
   in_review: <Clock className="h-4 w-4" />,
@@ -40,7 +40,7 @@ export default function MatchCard({ match }: { match: Match }) {
     if (!feedback.trim()) return
 
     setIsSubmitting(true)
-    // await submitFeedback(match.id, feedback)
+    await submitFeedback(match.id, feedback)
     setIsSubmitting(false)
     setShowFeedbackForm(false)
     setFeedback("")

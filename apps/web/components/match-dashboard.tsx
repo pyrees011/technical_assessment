@@ -1,11 +1,34 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { getMatches } from "@/lib/data"
 import MatchCard from "./match-card"
 import { StatusFilter } from "./status-filter"
 import { MatchStats } from "./match-stats"
 import { Match } from "./match-card"
 
-export default async function MatchDashboard() {
-    const matches = await getMatches() as Match[];
+export default function MatchDashboard() {
+    const [matches, setMatches] = useState<Match[]>([]);
+
+    useEffect(() => {
+      // Initial data fetch
+      const fetchMatches = async () => {
+        try {
+          const data = await getMatches();
+          setMatches(data);
+        } catch (error) {
+          console.error("Error fetching matches:", error);
+        }
+      };
+      
+      fetchMatches();
+      
+      // Set up polling interval (every 30 seconds)
+      const intervalId = setInterval(fetchMatches, 30000);
+      
+      // Clean up interval on component unmount
+      return () => clearInterval(intervalId);
+    }, []);
 
   return (
     <div className="space-y-6">
@@ -22,4 +45,3 @@ export default async function MatchDashboard() {
     </div>
   )
 }
-

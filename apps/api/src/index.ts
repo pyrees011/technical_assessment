@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { serve as serveHono } from "@hono/node-server";
+import { cors } from "hono/cors";
 import { inngest } from "./inngest/inngest.js";
 import { serve as serveInngest } from "inngest/hono";
 
@@ -13,6 +14,14 @@ import matchRouter from "./routes/matches.js";
 
 const app = new Hono();
 const inngestFunctions = [handleFeedback, generateFakeMatch, cancelUnansweredMatches]
+
+app.use(
+  "*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 app.get("/", (c) => {
   return c.text("Hello, Repio API!");
@@ -30,7 +39,7 @@ app.post("/api/v1/feedback/:id", async (c) => {
   
   // Send event to Inngest
   await inngest.send({
-    name: "feedback/new",
+    name: "feedback.received",
     data: {
       matchId: id,
       feedback: body.feedback,
