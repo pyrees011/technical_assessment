@@ -1,84 +1,195 @@
-# Turborepo starter
+# Repio Real-Time Candidate Match Feedback App
 
-This Turborepo starter is maintained by the Turborepo core team.
+## Overview
 
-## Using this example
+This application automates the workflow of collecting recruiter feedback on AI-generated candidate matches for job postings. The system generates candidate-job matches, notifies recruiters via Slack, and tracks feedback within a time constraint.
 
-Run the following command:
+## Features
+
+- **Automated Match Analysis**: Generates fake candidate-job matches every 5 minutes.
+- **Slack Integration**: Sends match notifications via the Repio Bot.
+- **Feedback Collection**: Stores recruiter feedback in the database.
+- **Match Status Updates**:
+  - `in_review`: When a match is created.
+  - `done`: If feedback is received within 2 minutes.
+  - `canceled`: If no feedback is provided within 2 minutes.
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 + Better Auth + ShadcnUI
+- **Backend**: Hono
+- **Database**: Neon + Drizzle ORM
+- **Serverless Functions**: Inngest
+- **Messaging**: Slack Integration
+- **Monorepo**: Turborepo
+- **Strict TypeScript**
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+- **Node.js** (v18+)
+- **pnpm** (latest)
+
+### Installation
+
+Clone the repository and install dependencies:
 
 ```sh
-npx create-turbo@latest
+# Clone the repository
+git clone https://github.com/pyrees011/technical_assessment.git
+cd repio-feedback
+
+# Install dependencies
+pnpm install
 ```
 
-## What's inside?
+### Environment Variables
 
-This Turborepo includes the following packages/apps:
+Create a `.env` file in the apps/api directory and add the required environment variables:
 
-### Apps and Packages
+```env
+# Database Connection
+DATABASE_URL=your_neon_database_url
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
+# Slack Integration
+BOT_USER_OAUTH_TOKEN=your_slack_bot_token
+CHANNEL_LINK=your_slack_channel_id
 ```
 
-### Develop
+### Running the Application
 
-To develop all apps and packages, run the following command:
+#### **1. Start the Backend (Hono API)**
 
-```
-cd my-turborepo
+```sh
+cd apps/api
 pnpm dev
 ```
 
-### Remote Caching
+By default, the API runs on `http://localhost:3001`.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+#### **2. Start the inngest local server(create a new terminal)**
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
+```sh
+cd apps/api
+npx inngest-cli@latest dev
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+By default, the inngest local server runs on `http://localhost:8288`.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+#### **3. Start the Frontend (Next.js App)**
+
+```sh
+cd apps/web
+pnpm dev
+```
+
+By default, the frontend runs on `http://localhost:3000`.
+
+## API Endpoints
+
+### **1. Matches API** (`/matches`)
+
+#### **GET /matches**
+
+Fetch all matches.
+
+```sh
+curl -X GET http://localhost:8787/api/v1/matches
+```
+
+#### **POST /matches**
+
+Create a new match.
+
+```sh
+curl -X POST http://localhost:8787/api/v1/matches \
+-H "Content-Type: application/json" \
+-d '{
+  "candidateName": "John Doe",
+  "jobTitle": "Customer Support",
+  "analysis": "Strong communication skills",
+  "status": "in_review"
+}'
+```
+
+#### **GET /matches/:id**
+
+gets a perticular job-candidate match.
+
+```sh
+curl -X GET http://localhost:8787/api/v1/matches/1
+```
+
+#### **PATCH /matches/:id/status**
+
+updates a job-candidate match's status.
+
+```sh
+curl -X POST http://localhost:8787/api/v1/matches/1/status \
+-H "Content-Type: application/json" \
+-d '{
+  "status": "done"
+}'
+```
+
+#### **POST /matches/:id/feedback**
+
+updates a job-candidate match's feedback.
+
+```sh
+curl -X POST http://localhost:8787/api/v1/matches/1/feeback \
+-H "Content-Type: application/json" \
+-d '{
+  "feedback": "this is the updated feedback"
+}'
+```
+
+### **2. inngest API** (`/feedback`)
+
+#### **POST /feedback/:id**
+
+posts feedback given by the employer on the match
+
+```sh
+curl -X POST http://localhost:8787/api/v1/feedback/1 \
+-H "Content-Type: application/json" \
+-d '{
+  "feedback": "this is the feedback provided"
+}'
+```
+
+---
+
+## Slack Integration
+
+The Repio Bot sends notifications to Slack when a new match is created. If a recruiter provides feedback, the status updates to `done`; otherwise, it auto-updates to `canceled` after 2 minutes.
+
+To enable Slack integration, add your bot token and channel ID in `.env` and ensure your Slack bot has `chat:write` permissions.
+
+---
+
+## Project Structure
 
 ```
-npx turbo link
+repio-feedback/
+│── apps/
+│   ├── api/          # Backend
+│   │   ├── src/
+│   │   │   ├── db/      # Drizzle ORM database schemas
+│   │   │   ├── inngest/   # inngest severless functions(feedback handler, fake match generator, feedback timeout handler)
+│   │   │   ├── lib/slack # sends notification using slack sdk
+│   │   │   ├── routes/matches # api routes /matches
+│   │   │   ├── index # hono api application's main page
+│   ├── web/          # Frontend (Next.js 15 + ShadcnUI)
+│── turbo.json            # Turborepo configuration
+│── README.md             # Documentation
 ```
 
-## Useful Links
+---
 
-Learn more about the power of Turborepo:
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
