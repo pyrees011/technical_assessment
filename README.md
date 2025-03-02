@@ -180,11 +180,11 @@ repio-feedback/
 │── apps/
 │   ├── api/          # Backend
 │   │   ├── src/
-│   │   │   ├── db/      # Drizzle ORM database schemas
-│   │   │   ├── inngest/   # inngest severless functions(feedback handler, fake match generator, feedback timeout handler)
-│   │   │   ├── lib/slack # sends notification using slack sdk
-│   │   │   ├── routes/matches # api routes /matches
-│   │   │   ├── index # hono api application's main page
+│   │   │   ├── db/                  # Drizzle ORM database schemas
+│   │   │   ├── inngest/             # inngest severless functions(feedback handler, fake match generator, feedback timeout handler)
+│   │   │   ├── lib/slack            # sends notification using slack sdk
+│   │   │   ├── routes/matches       # api routes /matches
+│   │   │   ├── index                # hono api application's main page
 │   ├── web/          # Frontend (Next.js 15 + ShadcnUI)
 │── turbo.json            # Turborepo configuration
 │── README.md             # Documentation
