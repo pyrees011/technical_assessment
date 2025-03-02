@@ -1,6 +1,6 @@
 import { inngest } from "./inngest.js";
-import { db } from "../db/db.js"; // Drizzle instance
-import { matches } from "../db/schema.js"; // Matches table
+import { db } from "../db/db.js";
+import { matches } from "../db/schema.js";
 import { sendSlackNotification } from "../lib/slack.js";
 
 export const generateFakeMatch = inngest.createFunction(

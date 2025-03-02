@@ -11,7 +11,6 @@ export default function MatchDashboard() {
     const [matches, setMatches] = useState<Match[]>([]);
 
     useEffect(() => {
-      // Initial data fetch
       const fetchMatches = async () => {
         try {
           const data = await getMatches();
@@ -23,10 +22,8 @@ export default function MatchDashboard() {
       
       fetchMatches();
       
-      // Set up polling interval (every 30 seconds)
       const intervalId = setInterval(fetchMatches, 30000);
       
-      // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }, []);
 

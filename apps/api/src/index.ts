@@ -29,10 +29,8 @@ app.get("/", (c) => {
 
 app.route("/api/v1", matchRouter);
 
-// Connect Inngest to your Hono app
 app.use("/api/inngest", serveInngest({ client: inngest, functions: inngestFunctions }));
 
-// Endpoint to trigger feedback events
 app.post("/api/v1/feedback/:id", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
