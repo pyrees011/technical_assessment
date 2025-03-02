@@ -13,9 +13,11 @@
   "dependencies": {
     "@hono/node-server": "^1.13.8",
     "@neondatabase/serverless": "^0.10.4",
+    "@slack/web-api": "^7.8.0",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.2",
+    "inngest": "^3.31.13",
     "neon": "^2.0.0",
     "pg": "^8.13.3",
     "postgres": "^3.4.5",

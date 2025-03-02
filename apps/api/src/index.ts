@@ -1,19 +1,48 @@
 import { Hono } from "hono";
-import { serve } from "@hono/node-server";
+import { serve as serveHono } from "@hono/node-server";
+import { inngest } from "./inngest/inngest.js";
+import { serve as serveInngest } from "inngest/hono";
+
+// inngest functions
+import { handleFeedback } from "./inngest/feedbackHandler.js";
+import { generateFakeMatch } from "./inngest/matchGeneratory.js"
+import { cancelUnansweredMatches } from "./inngest/timeoutHandler.js";
 
 // router
 import matchRouter from "./routes/matches.js";
 
 const app = new Hono();
+const inngestFunctions = [handleFeedback, generateFakeMatch, cancelUnansweredMatches]
 
 app.get("/", (c) => {
   return c.text("Hello, Repio API!");
 });
 
-app.route("/matches", matchRouter);
+app.route("/api/v1", matchRouter);
+
+// Connect Inngest to your Hono app
+app.use("/api/inngest", serveInngest({ client: inngest, functions: inngestFunctions }));
+
+// Endpoint to trigger feedback events
+app.post("/api/v1/feedback/:id", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+  
+  // Send event to Inngest
+  await inngest.send({
+    name: "feedback/new",
+    data: {
+      matchId: id,
+      feedback: body.feedback,
+      timestamp: new Date().toISOString()
+    }
+  });
+  
+  return c.json({ success: true, message: "Feedback received" });
+});
 
 const port = 3001;
 
-serve({ fetch: app.fetch, port });
+serveHono({ fetch: app.fetch, port });
 
-console.log(`🔥 Server running on http://localhost:${port}`);
+console.log(`Server running on http://localhost:${port}`);

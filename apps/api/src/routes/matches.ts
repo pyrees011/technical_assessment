@@ -22,7 +22,6 @@ const MatchSchema = z.object({
     status: z.enum(["in_review", "done", "canceled"]),
   });
   
-  // Create a new match
   matchRouter.post("/matches", async (c) => {
     const body = await c.req.json();
     const parsed = MatchSchema.safeParse(body);
@@ -41,13 +40,13 @@ const MatchSchema = z.object({
     return c.json(newMatch, 201);
   });
   
-  // Get all matches
+
   matchRouter.get("/matches", async (c) => {
     const allMatches = await db.select().from(matches);
     return c.json(allMatches);
   });
   
-  // Get a match by ID
+
   matchRouter.get("/matches/:id", async (c) => {
     const id = Number(c.req.param("id"));
     if (isNaN(id)) return c.json({ error: "Invalid match ID" }, 400);
@@ -59,7 +58,7 @@ const MatchSchema = z.object({
     return c.json(match[0]);
   });
   
-  // Update match status
+  
   matchRouter.patch("/matches/:id/status", async (c) => {
     const id = Number(c.req.param("id"));
     if (isNaN(id)) return c.json({ error: "Invalid match ID" }, 400);
@@ -81,7 +80,7 @@ const MatchSchema = z.object({
     return c.json(updatedMatch);
   });
   
-  // Submit feedback
+  
   matchRouter.patch("/matches/:id/feedback", async (c) => {
     const id = Number(c.req.param("id"));
     if (isNaN(id)) return c.json({ error: "Invalid match ID" }, 400);
